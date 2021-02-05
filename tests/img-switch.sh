@@ -1,45 +1,43 @@
 #!/bin/sh
 
+# this script will download the images of all the new themes
+# put those into /images/themes in the format webp
+# change the file /themes.json for the new paths (docs/assets/img/themes/)
+# then build the new files
+# :)
+
+
+exit
+
 ## vars
-path='../themes.json'
-out='../docs/assets/img/themes/'
-orig=$pwd
+orig="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+path="../themes.json"
+out="../docs/assets/img/themes/"
+pathout="assets/img/themes"
 
-# create file to wget everything
-#everything='egrep "image/title" $path'
-#printf $everything
+grep '\"image\":' $orig/$path | grep -o '"http.*' | sed -e 's/"//g' > $orig/links
 
+start="$(ls -l $orig/$out | wc -l)"; start="$(($start - 1))"
+limit="$(wc -l $orig/links | awk '{ print $1 }')"; limit="$(($start + $limit))"
 
-grep '\"image\":' $path | grep -o '"http.*' | sed -e 's/"//g' > links
-
-start="$(ls -l $out | wc -l)"
-start="$(($start - 1))"
-limit="$(wc -l links | awk '{ print $1 }')"
-limit="$(($start + $limit))"
-
-mkdir imgs; cd imgs
+mkdir $orig/imgs
 for (( c=$start; c<$limit; c++ ))
 do
   line="$(($c - $start + 1))"
-  img="$(sed -n $line\p ../links)"
-  wget "$img" -O "$c"
-  mogrify -format webp "$c"
-  rm "$c"
-  mv "$c".webp "../$out"
+  img="$(sed -n $line\p $orig/links)"
+  wget "$img" -O "$orig/imgs/$c"
+  mogrify -format webp "$orig/imgs/$c"
+  mv "$orig/imgs/$c".webp "$orig/../images/themes/"
+
+  # replace string in file
+  sed -i "s_$(echo "$img")_$pathout/$c.webp_g" "$orig/$path"
 done
-rm -rf imgs links
-#wget -i ../links
 
-# get titles of the files
+rm -rf $orig/imgs $orig/links
+
+# install?!
+# npm install
+# build
+# npm run build
 
 
-#convert * -quality 75 *--WebP.webp
-
-# limited to png, needs to extend
-# does not find files with extended file parameters, need to fix
-  # wdwdwdwf.png?wd=36&kl=smart
-  # lwwdw.jpg
-#mogrify -format png *.jpg
-
-# remove file after download
-#rm links #; rm -rf imgs
