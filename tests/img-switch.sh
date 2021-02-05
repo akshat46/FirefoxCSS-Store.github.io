@@ -6,9 +6,6 @@
 # then build the new files
 # :)
 
-
-exit
-
 ## vars
 orig="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 path="../themes.json"
